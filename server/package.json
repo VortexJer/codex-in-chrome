@@ -7,7 +7,7 @@
     "ws": "^8.22.2"
   },
   "scripts": {
-    "test": "node tests/test_access.mjs && node tests/test_hub.mjs",
+    "test": "node tests/test_access.mjs && node tests/test_hub.mjs && node tests/test_install.mjs",
     "start": "node mcp.js"
   },
   "description": "Local MCP bridge for the Codex in Chrome extension",
