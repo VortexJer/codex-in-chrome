@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 const root = path.dirname(fileURLToPath(import.meta.url));
 const args = new Set(process.argv.slice(2));
 const npm = process.platform === 'win32' ? 'npm.cmd' : 'npm';
-const mcp = path.join(root, 'server', 'mcp.js').replace(/\/g, '/');
+const mcp = path.join(root, 'server', 'mcp.js').replace(/\\/g, '/');
 
 console.log('1/4 Installing server dependencies...');
 const r = spawnSync(npm, ['install', '--omit=dev', '--no-audit', '--no-fund'], { cwd: path.join(root, 'server'), stdio: 'inherit', shell: process.platform === 'win32' });
