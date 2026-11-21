@@ -9,3 +9,5 @@ server/tests/.fixtures/
 .unlazy/
 .goldentokens/
 *.zip
+/GATES.md
+/docs/INITIAL-GATES.md

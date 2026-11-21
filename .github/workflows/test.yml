@@ -1,0 +1,25 @@
+name: Tests
+on: [push, pull_request]
+jobs:
+  tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --prefix server
+      - run: node server/keygen.mjs
+      - run: node scripts/verify-core.mjs
+      - run: node scripts/test-installer.mjs
+      - run: node server/tests/test_install.mjs
+      - run: python scripts/test-protocol.py
+      - run: pip install -r requirements-dev.txt
+      - run: python -m playwright install chromium
+      - run: python server/tests/test_permission_ui.py
+      - run: python server/tests/test_isolated_e2e.py

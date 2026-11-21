@@ -2,95 +2,118 @@
 
 # Codex in Chrome
 
-A Chrome extension plus a small local MCP bridge so **Codex CLI** can open, read, click, type, screenshot and debug pages in **your real Chrome** (your sessions, your tabs), while you decide what it may touch.
+Let Codex use your real Chrome through a local MCP bridge. The extension works in a dedicated **Codex** tab group and exposes eight compact browser tools.
 
 ```
-Codex --stdio--> server/mcp.js --ws 127.0.0.1:17333--> server/hub.js --ws--> extension/background.js
+Codex -> MCP (stdio) -> local WebSocket hub -> Chrome extension
 ```
 
-Everything stays on your machine: the hub only listens on `127.0.0.1`, no external model or service is involved.
+Use your existing Chrome login, navigate pages, fill forms, read content, and debug sites without an external browser-control model. The connector itself runs no language model and needs no API key. Codex still uses its own configured model.
 
-## Install
+## Install on Windows
 
-Requirements: Chrome, Node.js 18+, Codex CLI.
+Requires **Node.js 20+**, npm, Chrome with developer extensions enabled, and a Codex client that supports local MCP servers.
 
-```bash
-git clone https://github.com/VortexJer/codex-in-chrome.git
-cd codex-in-chrome
-node install.mjs
+1. Download or clone this repository into a permanent folder.
+2. Run `install.cmd`, or run `./install.ps1` from PowerShell.
+3. Open `chrome://extensions`, enable **Developer mode**, choose **Load unpacked**, and select this repository's `extension` folder.
+4. Open the extension panel and click **Save authorization**.
+5. Restart Codex to load the MCP connector and its approval settings.
+
+The installer downloads the locked `ws` dependency using `npm ci`, generates the local hub configuration, and updates only `[mcp_servers.codex-chrome]` and its tool overrides in the user Codex configuration. It backs up an existing configuration before changing it. No administrator access is needed.
+
+It also installs the bundled Codex skill alongside that configuration. Use `--no-skill` to skip it. Existing modified skill text is backed up before replacement. The original `node install.mjs` entry point remains supported, including its `--no-register` and `--no-skill` options.
+
+You can choose another configuration file explicitly:
+
+```powershell
+./install.ps1 --config "C:/path/to/config.toml"
 ```
 
-`install.mjs` installs the server dependency (`ws`), copies the **Codex skill** to `~/.codex/skills/codex-in-chrome/` and registers the MCP server (`codex mcp add codex-chrome -- node <path>/server/mcp.js`). If `codex mcp add` is not available it prints the `config.toml` snippet:
+`CODEX_HOME` is respected. `--skip-dependencies` is available for offline reinstalls when dependencies already exist.
+
+Chrome requires the unpacked extension step; the installer does not change your Chrome profile or install an extension silently. Keep the repository in place while installed.
+
+## Authorization
+
+The panel starts with this selection:
+
+| Setting | Default |
+|---|---|
+| What Codex can do | Read, navigate and interact |
+| Where it can work | All websites |
+| How long | Permanent (until I revoke it) |
+
+Click **Save authorization** to grant it. The saved status is:
+
+> Saved: read and interact · all websites · permanent
+
+**Pause** temporarily stops operations. **Stop and revoke** disables the saved grant and detaches controlled debuggers. Access stays disabled until you explicitly save a new authorization. Existing narrower permissions are retained during updates. You can instead select read-only mode, exact website origins, a timed grant, or the current Chrome session.
+
+The connector controls its own Codex tab group. `tabs adopt` shares only the tab you are currently viewing, when requested. Other tabs cannot be enumerated or closed through the tools. All-websites permission covers ordinary HTTP/HTTPS pages; Chrome internal pages and local files are outside that policy.
+
+## Why chat might still ask
+
+The extension's saved grant and Codex's MCP tool approvals are separate. The installer adds:
 
 ```toml
 [mcp_servers.codex-chrome]
-command = "node"
-args = ["/absolute/path/to/codex-in-chrome/server/mcp.js"]
+# command and args point to this checkout
+default_tools_approval_mode = "approve"
 ```
 
-Chrome does not allow installing an unpacked extension from a script, so do this once by hand:
+It also removes old per-tool overrides for this connector, so the setting applies to all eight tools. MCP descriptions tell Codex to proceed with routine actions within your requested task and saved scope without duplicate browser-access consent. Restart Codex after installing. Host or organization policies may still require approval; a saved extension grant cannot override them. See the [official configuration reference](https://developers.openai.com/codex/config-reference/).
 
-1. Open `chrome://extensions`, enable **Developer mode**.
-2. **Load unpacked** and choose the `extension/` folder.
-3. Open the extension's side panel and press **Authorize access** (see below).
-4. Restart Codex so it loads the tools.
+## Browser tools
 
-Options: `node install.mjs --no-register` (skip MCP registration) and `--no-skill` (skip the skill).
+| Tool | Purpose |
+|---|---|
+| `tabs` | List, create, select, adopt, release, show, or close controlled tabs |
+| `go` | Navigate to a URL, back, forward, or reload |
+| `snap` | Read a compact accessibility snapshot with element references |
+| `do` | Batch clicks, typing, keys, selections, scrolling, waits, and uploads |
+| `read` | Extract readable page text |
+| `shot` | Capture a small JPEG screenshot |
+| `js` | Evaluate JavaScript in the controlled page |
+| `log` | Inspect page console or network activity |
 
-### Español (resumen)
+Start with `go`, then use the returned references with `do`. Refresh the snapshot after navigation. Small snapshots and action diffs keep routine responses concise; screenshots are on demand.
 
-```bash
-git clone https://github.com/VortexJer/codex-in-chrome.git
-cd codex-in-chrome
-node install.mjs
+The hub listens only on `127.0.0.1:17333` and checks the extension's pinned ID. MCP clients connect locally without a web origin. Other software running on the same computer is part of the local trust boundary. The extension checks the saved policy before operations and periodically detaches debuggers when access is no longer allowed.
+
+## Update
+
+Replace the checkout's files or pull changes, rerun the installer, reload the extension at `chrome://extensions`, and restart Codex. The public manifest key keeps the unpacked extension ID stable. Do not remove and reinstall the extension if you want to retain its saved local settings.
+
+## Uninstall
+
+1. Click **Stop and revoke** in the extension panel.
+2. Run `uninstall.cmd` or `./uninstall.ps1` from the installed checkout.
+3. Restart Codex and remove **Codex in Chrome** at `chrome://extensions`.
+4. Delete the checkout if you no longer need it.
+
+Uninstall removes this checkout's MCP configuration and its unmodified installed skill, preserves other servers, and leaves your source files and backups intact. It refuses to unregister a connector that points to another checkout. A locally edited skill is retained.
+
+## Development and tests
+
+```powershell
+npm ci --prefix server
+node server/keygen.mjs
+node scripts/verify-core.mjs
+node scripts/test-installer.mjs
+python scripts/test-protocol.py
+pip install -r requirements-dev.txt
+python -m playwright install chromium
+python server/tests/test_permission_ui.py
+python server/tests/test_isolated_e2e.py
 ```
-Luego en `chrome://extensions`: modo desarrollador → *Cargar descomprimida* → carpeta `extension/` → abre el panel lateral y pulsa *Autorizar acceso* → reinicia Codex.
 
-## Permission panel
+Browser tests use a disposable Chromium profile and isolated ports. They do not use your personal Chrome session. `CHROME_EXECUTABLE` optionally selects an existing Chromium executable. The end-to-end check covers navigation, typing, screenshots, idle detach/reattach, read-only rejection, and revocation.
 
-<img src="docs/img/permission-panel.png" alt="Permission panel" width="320" align="right">
+See [validation notes](docs/VALIDATION.md) for what was actually run during this release and any remaining limits. CI is provided; inclusion of a workflow is not a claim that a hosted run has passed.
 
-You grant access in the extension panel, never from the MCP:
+## History and credits
 
-- **What**: read and navigate only, or also interact.
-- **Where**: only the origins you list, or all sites.
-- **How long**: minutes, until Chrome closes, or until you revoke it.
-- **Stop and revoke** at any time; clicking the extension icon pauses it (badge `II`).
+This release preserves the repository's existing history. New commits identify VortexJer as author and Codex as coauthor; earlier contributors retain their original credit.
 
-(The screenshot shows the panel in its initial, not-yet-authorized state; the UI language is Spanish.)
-
-## Tools
-
-| Tool | What it does |
-|------|--------------|
-| `tabs` | list / open / close / switch / adopt / release controlled tabs |
-| `go` | navigate (or back / forward / reload) and return a compact snapshot |
-| `snap` | snapshot of the visible viewport with element refs |
-| `do` | run several steps in one call (click, type, ...); stops at first failure and returns a diff |
-| `read` | readable main text of the page (no nav/footer), optionally links |
-| `shot` | small JPEG screenshot, only when visuals matter |
-| `js` | evaluate JavaScript in the page (output capped) |
-| `log` | console or network log of the tab |
-
-Token-saving by design: viewport-only snapshots, diffs after actions, batched steps and tiny screenshots on demand.
-
-## Safety model
-
-- Only tabs in the orange **Codex** tab group are controlled; other tabs are never touched.
-- The hub accepts the extension only from its pinned ID (`chrome-extension://<id>`) and rejects any browser `Origin` on the MCP endpoint, so web pages cannot talk to it.
-- Page text is treated as untrusted data, never as authorization.
-- Closing Chrome's "debugging" banner releases the tab.
-- Per-site scope limits where tools run; it is **not** a firewall for the network requests a page makes.
-
-The extension requests `<all_urls>`, `debugger`, `tabs` and `scripting` because that is what driving a browser takes. Read `extension/` before loading it. Its ID is pinned by the public `key` in `extension/manifest.json`, which matches `server/config.json`.
-
-## Tests
-
-```bash
-cd server && npm test
-```
-Runs the access-policy and hub tests (no real browser needed).
-
-## License
-
-MIT
+MIT licensed. This is an independent community project.
