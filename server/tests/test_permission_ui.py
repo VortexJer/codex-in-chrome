@@ -23,7 +23,7 @@ with fixture_dir('permissions-') as tmp:
     assert "const PORT = 17333;" in code
     worker.write_text(code.replace("const PORT = 17333;", "const PORT = 17334;",1),encoding="utf-8")
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(str(folder / "profile"), executable_path=executable, headless=True,
+        context = p.chromium.launch_persistent_context(str(folder / "profile"), executable_path=executable, channel='chromium', headless=True,
             args=[f"--disable-extensions-except={extension}",f"--load-extension={extension}"], viewport={"width":800,"height":920})
         try:
             if not context.service_workers: context.wait_for_event("serviceworker")
@@ -74,7 +74,7 @@ with fixture_dir('permissions-') as tmp:
             assert page.locator('html').get_attribute('lang') == 'en'
             page.screenshot(path=str(artifacts / 'permission-panel.png'), full_page=True)
             context.close()
-            context = p.chromium.launch_persistent_context(str(folder / 'profile'), executable_path=executable, headless=True,
+            context = p.chromium.launch_persistent_context(str(folder / 'profile'), executable_path=executable, channel='chromium', headless=True,
                 args=[f'--disable-extensions-except={extension}',f'--load-extension={extension}'], viewport={'width':800,'height':920})
             page = context.new_page()
             page.goto(f'chrome-extension://{ext_id}/permissions.html')

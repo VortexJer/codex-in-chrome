@@ -37,7 +37,7 @@ async def main():
                 except OSError: await asyncio.sleep(.1)
             async with async_playwright() as p:
                 executable=os.environ.get('CHROME_EXECUTABLE')
-                context=await p.chromium.launch_persistent_context(str(fixture / "profile"),executable_path=executable,headless=True,args=[f"--disable-extensions-except={extension}",f"--load-extension={extension}"],viewport={"width":1000,"height":750})
+                context=await p.chromium.launch_persistent_context(str(fixture / "profile"),executable_path=executable,channel='chromium',headless=True,args=[f"--disable-extensions-except={extension}",f"--load-extension={extension}"],viewport={"width":1000,"height":750})
                 try:
                     if not context.service_workers: await context.wait_for_event("serviceworker")
                     page=await context.new_page(); await page.goto(f"chrome-extension://{cfg['extId']}/permissions.html")
