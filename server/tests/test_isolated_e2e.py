@@ -13,7 +13,7 @@ from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from playwright.async_api import async_playwright
 from test_live import main as run_browser
-from test_support import fixture_dir
+from test_support import fixture_dir, tool_failed
 
 ROOT=Path(__file__).resolve().parents[2]
 
@@ -46,7 +46,7 @@ async def main():
                         async with ClientSession(r,w) as client:
                             await client.initialize()
                             denied=await client.call_tool('tabs',{'action':'list'})
-                            assert denied.is_error, 'fresh extension denies browser access before UI authorization'
+                            assert tool_failed(denied), 'fresh extension denies browser access before UI authorization'
                             await page.locator('#scope').select_option('all'); await page.locator('#mode').select_option('control'); await page.locator('#allow').click()
                             await page.wait_for_function("document.querySelector('#perm').textContent.includes('read and interact')")
                             async def idle_probe(browser_client, tab):
@@ -62,7 +62,7 @@ async def main():
                                 assert time.monotonic()-started>=43, 'debugger detached before the intended idle period'
                                 assert idle['mode']=='wait' and any(t['id']==tab for t in idle['tabs'])
                                 resumed=await browser_client.call_tool('snap',{'tab':tab})
-                                assert not resumed.is_error
+                                assert not tool_failed(resumed)
                                 active=await page.evaluate("chrome.runtime.sendMessage({t:'state'})")
                                 assert active['debugging'] and any(t['id']==tab for t in active['tabs'])
                                 print('IDLE DETACH AND REATTACH VERIFIED',flush=True)
@@ -70,11 +70,11 @@ async def main():
                             await page.locator('#mode').select_option('read'); await page.locator('#allow').click()
                             await page.wait_for_function("document.querySelector('#perm').textContent.includes('read only')")
                             denied=await client.call_tool('js',{'code':'document.title'})
-                            assert denied.is_error, 'read-only mode rejects script execution over real MCP'
+                            assert tool_failed(denied), 'read-only mode rejects script execution over real MCP'
                             await page.locator('#stop').click()
                             await page.wait_for_function("document.querySelector('#perm').textContent === 'No permissions granted'")
                             denied=await client.call_tool('tabs',{'action':'list'})
-                            assert denied.is_error, 'revocation takes effect over real MCP'
+                            assert tool_failed(denied), 'revocation takes effect over real MCP'
                     print('ISOLATED E2E VERIFIED')
                 finally: await context.close()
         finally:

@@ -11,6 +11,7 @@ import threading
 import urllib.parse
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
+from test_support import tool_failed
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -41,7 +42,7 @@ async def main(server_path=None, screenshot_name="live-browser.jpg", idle_probe=
                 await client.initialize()
                 async def call(name, args):
                     result = await client.call_tool(name, args)
-                    if result.is_error: raise RuntimeError(text(result))
+                    if tool_failed(result): raise RuntimeError(text(result))
                     return result
                 try:
                     created = text(await call("tabs", {"action":"new", "url":f"http://127.0.0.1:{http.server_port}/"}))

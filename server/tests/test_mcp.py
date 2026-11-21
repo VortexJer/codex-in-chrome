@@ -10,12 +10,14 @@ async def main():
     async with stdio_client(StdioServerParameters(command=shutil.which("node"), args=[str(server)])) as (reader, writer):
         async with ClientSession(reader, writer) as client:
             info = await client.initialize()
-            assert info.server_info.name == "codex-chrome"
+            server_info = getattr(info, 'serverInfo', None) or info.server_info
+            assert server_info.name == "codex-chrome"
             listed = await client.list_tools()
             names = {tool.name for tool in listed.tools}
             assert {"tabs", "go", "snap", "do", "read", "shot", "js", "log"}.issubset(names)
             for tool in listed.tools:
-                assert tool.input_schema["type"] == "object"
+                schema = getattr(tool, 'inputSchema', None) or tool.input_schema
+                assert schema["type"] == "object"
                 assert tool.description
     print("LEAN MCP VERIFIED")
 
