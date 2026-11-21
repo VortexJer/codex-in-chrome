@@ -39,7 +39,7 @@ try {
   const id = 'a'.repeat(32), base = `ws://127.0.0.1:${port}`;
   fs.copyFileSync(path.join(here, '../hub.js'), path.join(tmp, 'hub.js'));
   fs.writeFileSync(path.join(tmp, 'config.json'), JSON.stringify({port, extId:id}));
-  child = spawn(process.execPath, [path.join(tmp, 'hub.js')], {stdio:'pipe', windowsHide:true});
+  child = spawn(process.execPath, [path.join(tmp, 'hub.js')], {stdio:'inherit', windowsHide:true});
   let ready = false;
   for (let i = 0; i < 40; i++) {
     try {await fetch(`http://127.0.0.1:${port}/status`); ready = true; break;} catch {await delay(50);}

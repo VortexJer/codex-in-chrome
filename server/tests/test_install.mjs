@@ -33,6 +33,9 @@ function run(name, flags = [], overrides = {}) {
   const checkout = path.join(temporary, name);
   fs.mkdirSync(path.join(checkout, 'server'), {recursive: true});
   fs.mkdirSync(path.join(checkout, 'skills/codex-in-chrome'), {recursive: true});
+  fs.mkdirSync(path.join(checkout, 'scripts'), {recursive: true});
+  fs.mkdirSync(path.join(checkout, 'extension'), {recursive: true});
+  for(const relative of ['scripts/setup.mjs','server/keygen.mjs','extension/manifest.json']) fs.copyFileSync(path.join(root,relative),path.join(checkout,relative));
   fs.copyFileSync(path.join(root, 'install.mjs'), path.join(checkout, 'install.mjs'));
   fs.copyFileSync(path.join(root, 'server/config.json'), path.join(checkout, 'server/config.json'));
   fs.writeFileSync(path.join(checkout, 'skills/codex-in-chrome/SKILL.md'), 'isolated skill fixture\n');

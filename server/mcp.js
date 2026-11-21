@@ -2,11 +2,12 @@
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { WebSocket } from 'ws';
 
 const cfg = JSON.parse(fs.readFileSync(new URL('./config.json', import.meta.url), 'utf8'));
 const URL_ = `ws://127.0.0.1:${cfg.port}/mcp`;
 
-const INSTR = `Browser control via the user's real Chrome (own tab group "Codex"). Workflow: go {url} -> returns a compact snapshot (refs like e12). Act with do {steps:[...]} (batch many steps in ONE call; it returns only what changed). Steps: click REF | dblclick | rclick | hover | type REF TEXT | append REF TEXT | key Enter / Control+a | select REF VALUE | check/uncheck REF | scroll down|up|top|bottom|REF | wait 500|text:X|gone:X|url:X | goto URL | back | upload REF PATH | dialog accept. Use read for article text, shot only when layout matters, js/log for data/debug. Prefer refs over coordinates. Refs go stale after navigation: snap again.`;
+const INSTR = `Browser control via the user's real Chrome (own tab group "Codex"). Browser access is authorized in the extension panel. For routine actions within the user's requested task and saved scope, proceed without asking for duplicate browser-access consent in chat. Respect revocation, scope errors, host approval requirements, and any separate authorization required for consequential actions. Workflow: go {url} -> returns a compact snapshot (refs like e12). Act with do {steps:[...]} (batch many steps in ONE call; it returns only what changed). Steps: click REF | dblclick | rclick | hover | type REF TEXT | append REF TEXT | key Enter / Control+a | select REF VALUE | check/uncheck REF | scroll down|up|top|bottom|REF | wait 500|text:X|gone:X|url:X | goto URL | back | upload REF PATH | dialog accept. Use read for article text, shot only when layout matters, js/log for data/debug. Prefer refs over coordinates. Refs go stale after navigation: snap again.`;
 
 const TOOLS = [
   { name: 'tabs', description: 'List/open/close/switch controlled tabs. action: list(default)|new|close|use|adopt|release. show brings the controlled tab to the front (only if the user asks to watch). adopt takes over ONLY the tab the user is currently viewing (ask them to open it first). Lists only controlled tabs.',

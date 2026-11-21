@@ -1,15 +1,1 @@
-{
-  "name": "codex-in-chrome-server",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "dependencies": {
-    "ws": "^8.22.2"
-  },
-  "scripts": {
-    "test": "node tests/test_access.mjs && node tests/test_hub.mjs && node tests/test_install.mjs",
-    "start": "node mcp.js"
-  },
-  "description": "Local MCP bridge for the Codex in Chrome extension",
-  "license": "MIT"
-}
+{"name":"codex-in-chrome-server","version":"1.0.0","type":"module","private":true,"dependencies":{"ws":"^8.22.2"}}

@@ -1,5 +1,11 @@
-node_modules/
+server/node_modules/
+server/config.json
+artifacts/
 __pycache__/
-*.log
-.state/
+*.pyc
+server/tests/.hub-*/
+server/tests/.e2e-*/
+server/tests/.fixtures/
+.unlazy/
 .goldentokens/
+*.zip

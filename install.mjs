@@ -48,7 +48,10 @@ if (!args.has('--no-register')) {
     : spawnSync('codex', ['mcp', 'add', 'codex-chrome', '--', 'node', mcp], { stdio: 'inherit' });
   if (t.status !== 0) {
     console.log('   `codex mcp add` unavailable. Add this to ~/.codex/config.toml by hand:\n');
-    console.log(`[mcp_servers.codex-chrome]\ncommand = "node"\nargs = [${JSON.stringify(mcp)}]\n`);
+    console.log(`[mcp_servers.codex-chrome]\ncommand = "node"\nargs = [${JSON.stringify(mcp)}]\ndefault_tools_approval_mode = "approve"\n`);
+  } else {
+    const configured = spawnSync(process.execPath, [path.join(root,'scripts/setup.mjs'),'install','--skip-dependencies','--no-skill'], {stdio:'inherit',windowsHide:true});
+    if(configured.status !== 0) process.exit(configured.status || 1);
   }
 } else console.log('4/4 Registration skipped.');
 
@@ -56,5 +59,5 @@ console.log(`
 Last step (manual, Chrome does not allow doing it for you):
   1. Open chrome://extensions and turn on "Developer mode".
   2. "Load unpacked" -> ${path.join(root, 'extension')}
-  3. Click the extension icon / open its side panel and press "Authorize access".
+  3. Click the extension icon / open its side panel and press "Save authorization".
   4. Restart Codex so it loads the new tools.`);
