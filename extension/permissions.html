@@ -1,18 +1,18 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Codex in Chrome</title><link rel="stylesheet" href="permissions.css"></head><body><main>
-<header><svg id="logo" viewBox="0 0 24 24" aria-hidden="true"><path id="lp"/></svg><div><h1>Codex in Chrome</h1><span id="status">Detenido</span></div></header>
-<p id="hint" class="hint">El acceso lo decides tú.</p>
-<div class="row"><button id="toggle" type="button">Pausar</button><button id="winbtn" type="button" disabled>Ver ventana de Codex</button></div>
-<section><h2>Permisos de esta conexión</h2><p class="help">Autoriza una vez el alcance que prefieras. Las acciones ordinarias dentro de ese alcance no vuelven a preguntar. Es solo una configuración: no inicia ninguna sesión.</p>
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Codex in Chrome</title><link rel="stylesheet" href="permissions.css"></head><body><main>
+<header><svg id="logo" viewBox="0 0 24 24" aria-hidden="true"><path id="lp"/></svg><div><h1>Codex in Chrome</h1><span id="status">Stopped</span></div></header>
+<p id="hint" class="hint">You control browser access.</p>
+<div class="row"><button id="toggle" type="button">Pause</button><button id="winbtn" type="button" disabled>Show Codex window</button></div>
+<section><h2>Connection permissions</h2><p class="help">Save authorization once. Routine actions within its scope do not need another extension prompt. Saving does not start a Codex session.</p>
 <p id="perm" class="permline"></p>
-<form id="settings"><label for="mode">Qué puede hacer Codex</label><select id="mode"><option value="read">Leer y navegar</option><option value="control">Leer, navegar e interactuar</option></select>
-<label for="scope">Dónde puede trabajar</label><select id="scope"><option value="sites">Solo los sitios que indique</option><option value="all">Todos los sitios web</option></select>
-<div id="sites-box"><label for="sites">Un sitio por línea</label><textarea id="sites" rows="3" placeholder="https://es.wikipedia.org"></textarea><small>Se autoriza el origen exacto, incluidos protocolo y puerto. Añade aparte los subdominios que necesites.</small></div>
-<label for="duration">Durante cuánto tiempo</label><select id="duration"><option value="manual" selected>Permanente (hasta que lo revoque)</option><option value="session">Hasta cerrar Chrome</option><option value="120">2 horas</option><option value="30">30 minutos</option></select>
-<div class="buttons"><button id="allow" class="primary" type="submit">Autorizar acceso</button><button id="stop" class="danger" type="button">Detener y revocar</button></div></form>
+<form id="settings"><label for="mode">What Codex can do</label><select id="mode"><option value="read">Read and navigate</option><option value="control" selected>Read, navigate and interact</option></select>
+<label for="scope">Where it can work</label><select id="scope"><option value="sites">Only the sites I specify</option><option value="all" selected>All websites</option></select>
+<div id="sites-box" hidden><label for="sites">One site per line</label><textarea id="sites" rows="3" placeholder="https://en.wikipedia.org"></textarea><small>Permission applies to the exact origin, including protocol and port. Add subdomains separately.</small></div>
+<label for="duration">How long</label><select id="duration"><option value="manual" selected>Permanent (until I revoke it)</option><option value="session">Until Chrome closes</option><option value="120">2 hours</option><option value="30">30 minutes</option></select>
+<div class="buttons"><button id="allow" class="primary" type="submit">Save authorization</button><button id="stop" class="danger" type="button">Stop and revoke</button></div></form>
 <p id="message" role="status" aria-live="polite"></p></section>
-<section><h2>Aspecto</h2><label class="chk"><input type="checkbox" id="fx" checked> Mostrar el cursor de Codex y la escritura en la página</label></section>
-<section><h2>Pestañas controladas</h2><ul id="tabs"><li class="empty">Ninguna</li></ul></section>
-<section><h2>Actividad</h2><ul id="log"><li class="empty">Sin actividad</li></ul></section>
-<section class="note"><h2>Tu grupo de trabajo</h2><p>Codex trabaja en su grupo <strong>Codex</strong> (turquesa): ⏳ mientras trabaja y ✓ cuando termina. Puedes compartir también la pestaña que estés mirando cuando se lo pidas. No puede enumerar ni cerrar tus otras pestañas.</p></section>
-<footer>Conector local · Sin modelos externos</footer>
+<section><h2>Appearance</h2><label class="chk"><input type="checkbox" id="fx" checked> Show the Codex cursor and typing on the page</label></section>
+<section><h2>Controlled tabs</h2><ul id="tabs"><li class="empty">None</li></ul></section>
+<section><h2>Activity</h2><ul id="log"><li class="empty">No activity</li></ul></section>
+<section class="note"><h2>Your working group</h2><p>Codex works in its own <strong>Codex</strong> (turquoise): ⏳ while working y ✓ when finished. You can also ask it to use the tab you are viewing. It cannot list or close your other tabs.</p></section>
+<footer>Local connector · No external models</footer>
 </main><script src="logo.js"></script><script src="access.js"></script><script src="permissions.js"></script><script src="panel.js"></script></body></html>

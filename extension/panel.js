@@ -8,20 +8,20 @@ async function refresh() {
   if (!s) return;
   const active = s.mode === 'work';
   document.body.className = s.mode;
-  g('status').textContent = { work: 'Depurando', wait: 'En espera', pause: 'En pausa', off: 'Sin sesión' }[s.mode];
+  g('status').textContent = { work: 'Debugging', wait: 'Idle', pause: 'Paused', off: 'No session' }[s.mode];
   g('status').className = s.mode;
-  g('hint').textContent = s.paused ? 'En pausa: Codex no puede usar el navegador.'
-    : !s.connected ? 'Sin conexión con el hub: se inicia solo cuando Codex arranca.'
-    : s.clients && !s.granted ? 'Hay una sesión de Codex, pero aún no le has dado permisos.'
-    : active ? 'Codex está depurando una pestaña ahora mismo.'
-    : s.clients ? 'Codex conectado y a la espera. Ninguna pestaña se está depurando.'
-    : 'Ninguna sesión de Codex abierta. Los permisos guardados se aplicarán cuando abra una.';
-  g('toggle').textContent = s.paused ? 'Reanudar' : 'Pausar';
+  g('hint').textContent = s.paused ? 'Paused: Codex cannot use the browser.'
+    : !s.connected ? 'The local hub starts automatically when Codex connects.'
+    : s.clients && !s.granted ? 'A Codex session is connected. Save authorization to allow access.'
+    : active ? 'Codex is debugging a tab now.'
+    : s.clients ? 'Codex is connected and idle. No tab is being debugged.'
+    : 'No Codex session is open. Saved permissions apply when a session connects.';
+  g('toggle').textContent = s.paused ? 'Resume' : 'Pause';
   winState = s.winState;
   g('winbtn').disabled = !s.winState;
-  g('winbtn').textContent = s.winState && s.winState !== 'minimized' ? 'Ocultar ventana de Codex' : 'Ver ventana de Codex';
-  g('tabs').innerHTML = s.tabs.length ? s.tabs.map(t => `<li><div class="t">${t.cur ? '● ' : ''}${esc(t.title || 'sin título')}<small>${esc(t.url)}</small></div><button data-id="${t.id}">Soltar</button></li>`).join('') : '<li class="empty">Ninguna</li>';
-  g('log').innerHTML = s.log.length ? s.log.slice().reverse().map(l => `<li class="${l.err ? 'e' : ''}">${esc(l.time)} · ${esc(l.what)}${l.err ? ' — ' + esc(l.err) : ''}</li>`).join('') : '<li class="empty">Sin actividad</li>';
+  g('winbtn').textContent = s.winState && s.winState !== 'minimized' ? 'Hide Codex window' : 'Show Codex window';
+  g('tabs').innerHTML = s.tabs.length ? s.tabs.map(t => `<li><div class="t">${t.cur ? '● ' : ''}${esc(t.title || 'untitled')}<small>${esc(t.url)}</small></div><button data-id="${t.id}">Release</button></li>`).join('') : '<li class="empty">None</li>';
+  g('log').innerHTML = s.log.length ? s.log.slice().reverse().map(l => `<li class="${l.err ? 'e' : ''}">${esc(l.time)} · ${esc(l.what)}${l.err ? ' — ' + esc(l.err) : ''}</li>`).join('') : '<li class="empty">No activity</li>';
 }
 g('toggle').onclick = async () => { await chrome.runtime.sendMessage({ t: 'pause' }); refresh(); };
 g('tabs').onclick = async e => { const b = e.target.closest('button[data-id]'); if (b) { await chrome.runtime.sendMessage({ t: 'release', id: +b.dataset.id }); refresh(); } };

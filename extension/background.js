@@ -61,7 +61,7 @@ const save = () => chrome.storage.session.set({ ctl: [...ctl], cur, groupId, pau
 
 let clients = 0, lastIcon = '';
 const ACT = [];
-const note = (what, err) => { ACT.push({ time: new Date().toLocaleTimeString('es-ES', { hour12: false }), what, err }); if (ACT.length > 15) ACT.shift(); };
+const note = (what, err) => { ACT.push({ time: new Date().toLocaleTimeString('en-GB', { hour12: false }), what, err }); if (ACT.length > 15) ACT.shift(); };
 function iconFor(color) {
   const imageData = {};
   for (const s of [16, 32, 48, 128]) {
@@ -73,7 +73,7 @@ function iconFor(color) {
 }
 // off = no Codex session, wait = connected but idle, work = debugging a tab, pause = stopped by the user
 const COLORS = { off: '#8a8f98', wait: '#f5a524', work: '#10a37f', pause: '#e5534b' };
-const TITLES = { off: 'sin sesiones de Codex', wait: 'conectado, en espera', work: 'depurando', pause: 'pausado' };
+const TITLES = { off: 'no Codex sessions', wait: 'connected, idle', work: 'debugging', pause: 'paused' };
 const modeNow = granted => paused ? 'pause' : !(ws && ws.readyState === 1) ? 'off' : granted && attached.size > 0 ? 'work' : clients > 0 ? 'wait' : 'off';
 async function badge() {
   const open = ws && ws.readyState === 1;
@@ -82,7 +82,7 @@ async function badge() {
   const st = modeNow(granted), color = COLORS[st];
   if (color !== lastIcon) { lastIcon = color; chrome.action.setIcon({ imageData: iconFor(color) }).catch(() => {}); }
   chrome.action.setBadgeText({ text: paused ? 'II' : '' }); chrome.action.setBadgeBackgroundColor({ color: '#d29922' });
-  chrome.action.setTitle({ title: 'Codex in Chrome — ' + TITLES[st] + (st === 'wait' && !granted ? ' (sin permisos: abre el panel)' : '') });
+  chrome.action.setTitle({ title: 'Codex in Chrome — ' + TITLES[st] + (st === 'wait' && !granted ? ' (no permission: open the panel)' : '') });
 }
 // Clicking the icon opens the side panel (stays open, unlike a popup). Its page is permissions.html.
 chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
@@ -154,7 +154,7 @@ async function connect() {
       try { result = await h(m.params || {}); }
       finally { if (!diag) busy--; }
       if (!diag && !busy) void groupState(result.isError ? 'err' : 'done');
-      note(m.method + (m.params?.url ? ' ' + short(m.params.url) : m.params?.steps ? ' x' + m.params.steps.length : '') + ' (' + (Date.now() - t0) + 'ms)', result.isError ? 'falló' : undefined);
+      note(m.method + (m.params?.url ? ' ' + short(m.params.url) : m.params?.steps ? ' x' + m.params.steps.length : '') + ' (' + (Date.now() - t0) + 'ms)', result.isError ? 'failed' : undefined);
       ws.send(JSON.stringify({ id: m.id, result }));
     } catch (e) {
       note(m.method, cut(String(e.message || e), 80));

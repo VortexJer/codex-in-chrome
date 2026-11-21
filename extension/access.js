@@ -2,7 +2,7 @@
 (() => {
   function origin(value) {
     const url = new URL(value);
-    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('Solo URLs http/https sin credenciales.');
+    if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password) throw new Error('Use an HTTP or HTTPS URL without credentials.');
     return url.origin;
   }
   function enabled(policy, session, now = Date.now()) {
@@ -16,8 +16,8 @@
     try {const site = origin(url); return policy.scope === 'all' || policy.scope === 'sites' && Array.isArray(policy.sites) && policy.sites.includes(site);} catch {return false;}
   }
   function checkTool(policy, session, method, params = {}) {
-    if (!enabled(policy, session)) throw new Error('Acceso detenido o caducado. El usuario debe autorizarlo en el panel de Codex in Chrome.');
-    if (policy.mode === 'read' && (['do', 'js'].includes(method) || method === 'tabs' && params.action === 'close')) throw new Error('Modo solo lectura: la interacción está desactivada en el panel.');
+    if (!enabled(policy, session)) throw new Error('Access stopped or expired. Authorize access in the Codex in Chrome panel.');
+    if (policy.mode === 'read' && (['do', 'js'].includes(method) || method === 'tabs' && params.action === 'close')) throw new Error('Read-only mode: interaction is disabled in the panel.');
   }
   globalThis.CodexAccess = {origin, enabled, allowed, checkTool};
 })();
